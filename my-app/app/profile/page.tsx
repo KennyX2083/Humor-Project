@@ -87,134 +87,126 @@ export default async function ProfilePage({
   const needsName = !profile.first_name?.trim() || !profile.last_name?.trim();
 
   return (
-  <div className="site-shell">
-    <header className="site-header">
-      <Link href="/" className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          h.
-        </span>
-        Humor Lab
-      </Link>
+    <div className="site-shell">
+      <header className="site-header">
+        <Link href="/" className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            h.
+          </span>
+          Humor Lab
+        </Link>
 
-      <nav className="header-actions" aria-label="Account">
-        <Link href="/">Back to jokes</Link>
-        <SignOutButton />
-      </nav>
-    </header>
+        <nav className="header-actions" aria-label="Account">
+          <Link href="/">Back to jokes</Link>
+          <SignOutButton />
+        </nav>
+      </header>
 
-    <main>
-      <div className="profile-heading">
-        <p className="eyebrow">Your corner of the lobby</p>
-        <h1>My Profile</h1>
-        <p className="profile-description">
-          Put a name and a face to the player behind the laughs.
-        </p>
-      </div>
-
-      <div className="profile-layout">
-        <aside className="profile-panel" aria-label="Profile photo">
-          {photoUrl ? (
-            <Image
-              src={photoUrl}
-              alt="Your profile photo"
-              width={144}
-              height={144}
-              unoptimized
-              className="profile-avatar"
-            />
-          ) : (
-            <div
-              className="profile-avatar profile-avatar-placeholder"
-              role="img"
-              aria-label="No profile photo uploaded"
-            >
-              {profile.first_name?.trim().charAt(0).toUpperCase() || "?"}
-            </div>
-          )}
-
-          {photoError && (
-            <p className="profile-notice profile-notice-error" role="alert">
-              Could not load your photo. Try refreshing the page.
-            </p>
-          )}
-
-          <div className="profile-upload">
-            <ProfilePhotoUpload />
-          </div>
-        </aside>
-
-        <section className="profile-panel" aria-labelledby="details-heading">
-          <h2 id="details-heading">Personal details</h2>
-          <p className="profile-muted">
-            Update your name whenever you like.
+      <main>
+        <div className="profile-heading">
+          <p className="eyebrow">Your corner of the lobby</p>
+          <h1>My Profile</h1>
+          <p className="profile-description">
+            Put a name and a face to the player behind the laughs.
           </p>
+        </div>
 
-          {needsName && (
-            <p className="profile-notice">
-              Welcome! Add your first and last name to finish setting up
-              your profile.
-            </p>
-          )}
-
-          {status === "saved" && (
-            <p
-              className="profile-notice profile-notice-success"
-              role="status"
-            >
-              Your profile has been saved.
-            </p>
-          )}
-
-          {status === "invalid" && (
-            <p
-              className="profile-notice profile-notice-error"
-              role="alert"
-            >
-              Enter both names, using at most 100 characters each.
-            </p>
-          )}
-
-          {status === "error" && (
-            <p
-              className="profile-notice profile-notice-error"
-              role="alert"
-            >
-              Could not save your profile. Please try again.
-            </p>
-          )}
-
-          <form action={saveProfile} className="profile-form">
-            <div className="profile-fields">
-              <div className="profile-field">
-                <label htmlFor="first_name">First name</label>
-                <input
-                  id="first_name"
-                  name="first_name"
-                  autoComplete="given-name"
-                  defaultValue={profile.first_name ?? ""}
-                  required
-                  maxLength={100}
-                />
+        <div className="profile-layout">
+          <aside className="profile-panel" aria-label="Profile photo">
+            {photoUrl ? (
+              <Image
+                src={photoUrl}
+                alt="Your profile photo"
+                width={144}
+                height={144}
+                unoptimized
+                className="profile-avatar"
+              />
+            ) : (
+              <div
+                className="profile-avatar profile-avatar-placeholder"
+                role="img"
+                aria-label="No profile photo uploaded"
+              >
+                {profile.first_name?.trim().charAt(0).toUpperCase() || "?"}
               </div>
+            )}
 
-              <div className="profile-field">
-                <label htmlFor="last_name">Last name</label>
-                <input
-                  id="last_name"
-                  name="last_name"
-                  autoComplete="family-name"
-                  defaultValue={profile.last_name ?? ""}
-                  required
-                  maxLength={100}
-                />
-              </div>
+            {photoError && (
+              <p className="profile-notice profile-notice-error" role="alert">
+                Could not load your photo. Try refreshing the page.
+              </p>
+            )}
+
+            <div className="profile-upload">
+              <ProfilePhotoUpload />
             </div>
+          </aside>
 
-            <button type="submit">Save changes</button>
-          </form>
-        </section>
-      </div>
-    </main>
-  </div>
-);
+          <section className="profile-panel" aria-labelledby="details-heading">
+            <h2 id="details-heading">Personal details</h2>
+            <p className="profile-muted">Update your name whenever you like.</p>
+
+            {needsName && (
+              <p className="profile-notice">
+                Welcome! Add your first and last name to finish setting up your
+                profile.
+              </p>
+            )}
+
+            {status === "saved" && (
+              <p
+                className="profile-notice profile-notice-success"
+                role="status"
+              >
+                Your profile has been saved.
+              </p>
+            )}
+
+            {status === "invalid" && (
+              <p className="profile-notice profile-notice-error" role="alert">
+                Enter both names, using at most 100 characters each.
+              </p>
+            )}
+
+            {status === "error" && (
+              <p className="profile-notice profile-notice-error" role="alert">
+                Could not save your profile. Please try again.
+              </p>
+            )}
+
+            <form action={saveProfile} className="profile-form">
+              <div className="profile-fields">
+                <div className="profile-field">
+                  <label htmlFor="first_name">First name</label>
+                  <input
+                    id="first_name"
+                    name="first_name"
+                    autoComplete="given-name"
+                    defaultValue={profile.first_name ?? ""}
+                    required
+                    maxLength={100}
+                  />
+                </div>
+
+                <div className="profile-field">
+                  <label htmlFor="last_name">Last name</label>
+                  <input
+                    id="last_name"
+                    name="last_name"
+                    autoComplete="family-name"
+                    defaultValue={profile.last_name ?? ""}
+                    required
+                    maxLength={100}
+                  />
+                </div>
+              </div>
+
+              <button type="submit">Save changes</button>
+            </form>
+          </section>
+        </div>
+      </main>
+    </div>
+  );
 }
