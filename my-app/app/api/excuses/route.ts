@@ -94,17 +94,21 @@ export async function POST(request: Request) {
     if (!excuse || excuse.length > 4000) {
       return Response.json(
         { error: "No usable excuse was generated. Please try again." },
-        { status: 502 }
+        { status: 502 },
       );
     }
-  } catch {
+  } catch (error) {
+    console.error(
+      "Gemini generation failed:",
+      error instanceof Error ? error.message : "Unknown Gemini error",
+    );
     return Response.json(
       {
         error:
           "Gemini could not generate an excuse. Try again shortly. " +
           "If this continues, check your API key and quota in AI Studio.",
       },
-      { status: 502 }
+      { status: 502 },
     );
   }
 
