@@ -24,8 +24,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
-  radial-gradient(ellipse at top left, #29203d 0, transparent 55%),
-  var(--background);
+    radial-gradient(ellipse at top left, #29203d 0, transparent 55%),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
   line-height: 1.6;
@@ -144,18 +144,18 @@ input {
 
 @media (max-width: 600px) {
   .site-header {
-  flex-wrap: wrap;
-  gap: 16px;
+    flex-wrap: wrap;
+    gap: 16px;
   }
-  
+
   .header-actions {
-  flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * {
-  transition: none !important;
+    transition: none !important;
   }
 }
 
@@ -317,7 +317,7 @@ input {
   cursor: pointer;
 }
 
-.profile-upload form > button {
+.profile-upload form>button {
   width: 100%;
   margin-top: 8px;
 }
@@ -330,17 +330,17 @@ input {
 
 @media (max-width: 760px) {
   .profile-layout {
-  grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
-  
+
   .profile-panel {
-  padding: 24px;
+    padding: 24px;
   }
 }
 
 @media (max-width: 480px) {
   .profile-fields {
-  grid-template-columns: 1fr;
+    grid-template-columns: 1fr;
   }
 }
 
@@ -506,13 +506,13 @@ input {
   transition: background 120ms, border-color 120ms;
 }
 
-.game-choice input:checked + span {
+.game-choice input:checked+span {
   border-color: var(--queue-accent);
   background: #00ffff12;
   color: #00ffff;
 }
 
-.game-choice input:focus-visible + span {
+.game-choice input:focus-visible+span {
   outline: 2px solid var(--queue-accent);
   outline-offset: 4px;
 }
@@ -693,7 +693,7 @@ input {
   margin: 0 0 8px;
 }
 
-.incident-report > p:last-child {
+.incident-report>p:last-child {
   margin: 0;
   color: #d3c8e2;
   font-size: 14px;
@@ -762,29 +762,30 @@ input {
 
 @media (max-width: 600px) {
   .queue-page {
-  padding-inline: 16px;
+    padding-inline: 16px;
   }
-  
+
   .queue-generator {
-  padding: 18px;
+    padding: 18px;
   }
-  
+
   .generator-heading,
   .generator-bottom,
   .queue-page .collection-heading {
-  align-items: flex-start;
-  flex-direction: column;
-  gap: 10px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
   }
-  
+
   .generate-button {
-  width: 100%;
+    width: 100%;
   }
-  
+
   .queue-page .hero {
-  padding-top: 28px;
+    padding-top: 28px;
   }
 }
+
 /* Profile heading retains its original eyebrow styling. */
 .profile-heading .eyebrow {
   margin: 0 0 18px;
@@ -928,7 +929,7 @@ body {
   letter-spacing: 1px;
 }
 
-.game-choice input:checked + span {
+.game-choice input:checked+span {
   box-shadow: inset 0 -3px #00ffff, 0 0 16px #00ffff20;
 }
 
@@ -1054,25 +1055,51 @@ body {
 }
 
 @media (max-width: 760px) {
-  .queue-page .joke-grid { grid-template-columns: 1fr; }
+  .queue-page .joke-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {
-  .queue-generator { padding: 0 16px 18px; }
-  .generator-heading { margin-inline: -16px; padding-inline: 16px; }
-  .queue-page .hero { padding-top: 32px; }
-  .queue-page .hero h1 { letter-spacing: -1px; }
-  .queue-page .collection-heading span { line-height: 1.6; }
-  .queue-page .joke-card { padding: 20px; }
+  .queue-generator {
+    padding: 0 16px 18px;
+  }
+
+  .generator-heading {
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+
+  .queue-page .hero {
+    padding-top: 32px;
+  }
+
+  .queue-page .hero h1 {
+    letter-spacing: -1px;
+  }
+
+  .queue-page .collection-heading span {
+    line-height: 1.6;
+  }
+
+  .queue-page .joke-card {
+    padding: 20px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .queue-page *, .queue-page *::before, .queue-page *::after {
+
+  .queue-page *,
+  .queue-page *::before,
+  .queue-page *::after {
     animation: none !important;
     transition: none !important;
     transform: none !important;
   }
-  .queue-page::before { display: none; }
+
+  .queue-page::before {
+    display: none;
+  }
 }
 
 .create-welcome {
@@ -1091,7 +1118,7 @@ body {
   margin: 0.5rem 0 0;
 }
 
-.create-welcome > a {
+.create-welcome>a {
   flex-shrink: 0;
 }
 
@@ -1234,8 +1261,38 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .queue-page .profile-panel button,
   .queue-page .profile-upload input[type="file"]::file-selector-button {
     transition: none;
   }
+}
+.game-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.game-filter label {
+  color: var(--queue-muted);
+  font-size: 13px;
+}
+
+.game-filter select {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--queue-accent);
+  border-radius: 0;
+  background: #150c2b;
+  color: var(--queue-accent);
+  font: inherit;
+  font-size: 13px;
+}
+
+.queue-page .joke-card[data-game="overwatch"] .joke-number {
+  border-color: #ff990080;
+  color: #ffb347;
+  background: #ff990010;
 }

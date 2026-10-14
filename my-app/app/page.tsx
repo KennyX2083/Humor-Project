@@ -5,10 +5,21 @@ import SignOutButton from "./components/google-sign-out-button";
 import GoogleSignInButton from "./components/google-sign-in-button";
 import ExcuseGenerator from "./components/excuse-generator";
 import ExcuseVoteButtons from "./components/excuse-vote-buttons";
+import GameFilter from "./components/game-filter";
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ game?: string }>;
+}) {
+  const { game } = await searchParams;
+
+  const selectedGame =
+    game === "valorant" || game === "league" || game === "overwatch"
+      ? game
+      : "all";
   const supabase = await createClient();
 
   const {
@@ -37,11 +48,17 @@ export default async function Home() {
     }
   }
 
-  const { data: excuses, error } = await supabase
+  let excusesQuery = supabase
     .from("excuses")
     .select("id, game, character_name, situation, excuse, created_at")
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (selectedGame !== "all") {
+    excusesQuery = excusesQuery.eq("game", selectedGame);
+  }
+
+  const { data: excuses, error } = await excusesQuery;
 
   // Load the signed-in user's votes for the displayed excuses.
   const votesByExcuse = new Map<string, number>();
@@ -52,7 +69,10 @@ export default async function Home() {
       .from("excuse_votes")
       .select("excuse_id, vote")
       .eq("user_id", user.id)
-      .in("excuse_id", excuses.map((item) => item.id));
+      .in(
+        "excuse_id",
+        excuses.map((item) => item.id),
+      );
 
     votesFailed = Boolean(votesError);
 
@@ -102,8 +122,9 @@ export default async function Home() {
         <section aria-labelledby="feed-heading">
           <div className="collection-heading">
             <h2 id="feed-heading">The review queue</h2>
-            <span>Read the incident. Judge the defense.</span>
           </div>
+          
+          <GameFilter selectedGame={selectedGame} />
 
           {error ? (
             <p className="empty-state" role="alert">
