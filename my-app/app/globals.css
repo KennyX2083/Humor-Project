@@ -1075,3 +1075,167 @@ body {
   .queue-page::before { display: none; }
 }
 
+.create-welcome {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.create-welcome h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+
+.create-welcome p {
+  margin: 0.5rem 0 0;
+}
+
+.create-welcome > a {
+  flex-shrink: 0;
+}
+
+.create-avatar {
+  display: block;
+  width: 64px;
+  height: 64px;
+  border: 2px solid cyan;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.create-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: cyan;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.header-actions a[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 0.35em;
+}
+
+/* Profile page: match the arcade presentation. */
+.queue-page .profile-heading h1 {
+  color: var(--queue-accent);
+  text-transform: uppercase;
+  letter-spacing: -1px;
+  line-height: 1.15;
+}
+
+.queue-page .profile-heading .eyebrow {
+  color: var(--queue-accent);
+}
+
+.queue-page .profile-description,
+.queue-page .profile-muted {
+  color: var(--queue-muted);
+}
+
+.queue-page .profile-panel {
+  border: 1px solid #ff00ff60;
+  border-top: 2px solid var(--queue-accent);
+  border-radius: 0;
+  background: #150c2bea;
+  box-shadow: 0 0 24px #00ffff15;
+}
+
+.queue-page .profile-panel h2 {
+  color: var(--queue-accent);
+  text-transform: uppercase;
+  font-size: 18px;
+  letter-spacing: 1px;
+}
+
+.queue-page .profile-avatar {
+  display: block;
+  border: 2px solid var(--queue-accent);
+}
+
+.queue-page .profile-avatar-placeholder {
+  display: grid;
+  background: #00ffff08;
+  color: var(--queue-accent);
+}
+
+.queue-page .profile-panel label {
+  color: var(--foreground);
+  font-weight: 400;
+}
+
+.queue-page .profile-panel input:not([type="file"]) {
+  border: 0;
+  border-bottom: 2px solid #ff00ff;
+  border-radius: 0;
+  background: #090014;
+  color: var(--foreground);
+}
+
+.queue-page .profile-panel input:not([type="file"]):focus-visible {
+  border-bottom-color: var(--queue-accent);
+  outline: 2px solid var(--queue-accent);
+  outline-offset: 2px;
+}
+
+.queue-page .profile-panel button,
+.queue-page .profile-upload input[type="file"]::file-selector-button {
+  border: 2px solid var(--queue-accent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--queue-accent);
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 4px 4px 0 #ff00ff70;
+  transition: background 160ms, color 160ms, box-shadow 160ms;
+}
+
+.queue-page .profile-panel button:hover:not(:disabled),
+.queue-page .profile-upload input[type="file"]:not(:disabled)::file-selector-button:hover {
+  background: var(--queue-accent);
+  color: #090014;
+  box-shadow: 0 0 22px #00ffff70;
+}
+
+.queue-page .profile-upload input[type="file"] {
+  color: var(--queue-muted);
+}
+
+.queue-page .profile-upload input[type="file"]::file-selector-button {
+  min-height: 44px;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.queue-page .profile-upload [role="status"] {
+  color: var(--queue-accent);
+}
+
+.queue-page .profile-notice {
+  border: 1px solid #00ffff70;
+  border-radius: 0;
+  background: #00ffff08;
+  color: var(--foreground);
+}
+
+.queue-page .profile-notice-success {
+  border-color: #88d6b0;
+  background: #88d6b010;
+  color: #ade7c9;
+}
+
+.queue-page .profile-notice-error {
+  border-color: #ffaaaa;
+  background: #ffaaaa10;
+  color: #ffaaaa;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue-page .profile-panel button,
+  .queue-page .profile-upload input[type="file"]::file-selector-button {
+    transition: none;
+  }
+}

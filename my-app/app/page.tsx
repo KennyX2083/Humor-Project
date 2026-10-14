@@ -71,7 +71,12 @@ export default async function Home() {
           Excuse Queue
         </Link>
 
-        <nav className="header-actions" aria-label="Account">
+        <nav className="header-actions" aria-label="Main navigation">
+          <Link href="/" aria-current="page">
+            Vote
+          </Link>
+          <Link href="/create">Create</Link>
+
           {user ? (
             <>
               <Link href="/profile">My Profile</Link>
@@ -90,18 +95,9 @@ export default async function Home() {
             Bad game. <span>Good excuse.</span>
           </h1>
           <p className="hero-description">
-            Tell us what happened. Give the lobby your side of the story.
+            Read the incidents. Judge the excuses. Vote for the best defense.
           </p>
         </section>
-
-        {user ? (
-          <ExcuseGenerator />
-        ) : (
-          <p className="empty-state">
-            Sign in with Google above to generate excuses and vote. Everyone can
-            browse.
-          </p>
-        )}
 
         <section aria-labelledby="feed-heading">
           <div className="collection-heading">
@@ -123,10 +119,13 @@ export default async function Home() {
                 <li key={item.id}>
                   <article className="joke-card" data-game={item.game}>
                     <span className="joke-number">
-                      {item.game === "valorant" ? "Valorant"
-                        : item.game === "league" ? "League of Legends"
-                        : item.game === "overwatch" ? "Overwatch"
-                        : "Unknown Game"}
+                      {item.game === "valorant"
+                        ? "Valorant"
+                        : item.game === "league"
+                          ? "League of Legends"
+                          : item.game === "overwatch"
+                            ? "Overwatch"
+                            : "Unknown Game"}
                       {item.character_name && ` · ${item.character_name}`}
                     </span>
 

@@ -87,18 +87,22 @@ export default async function ProfilePage({
   const needsName = !profile.first_name?.trim() || !profile.last_name?.trim();
 
   return (
-    <div className="site-shell">
+    <div className="site-shell queue-page">
       <header className="site-header">
         <Link href="/" className="brand">
           <span className="brand-mark" aria-hidden="true">
-            h.
+            e.
           </span>
-          Humor Lab
+          Excuse Queue
         </Link>
 
-        <nav className="header-actions" aria-label="Account">
-          <Link href="/">Back to jokes</Link>
-          <SignOutButton />
+        <nav className="header-actions" aria-label="Main navigation">
+          <Link href="/">Vote</Link>
+          <Link href="/create">Create</Link>
+          <Link href="/profile" aria-current="page">
+            My Profile
+          </Link>
+          <SignOutButton/>
         </nav>
       </header>
 
