@@ -68,6 +68,7 @@ export default function ExcuseGenerator() {
             {[
               { value: "valorant", label: "Valorant" },
               { value: "league", label: "League of Legends" },
+              { value: "overwatch", label: "Overwatch"},
             ].map((option) => (
               <label className="game-choice" key={option.value}>
                 <input
@@ -84,13 +85,19 @@ export default function ExcuseGenerator() {
 
           <div className="queue-field">
             <label htmlFor="character">
-              {game === "valorant" ? "Agent" : "Champion"}
+              {game === "valorant" ? "Agent" 
+              : game === "league" ? "Champion" 
+              : game === "overwatch" ? "Hero" 
+              : "Character"}
               <span>optional</span>
             </label>
             <input
               id="character"
               name="character"
-              placeholder={game === "valorant" ? "e.g. Jett" : "e.g. Yasuo"}
+              placeholder={game === "valorant" ? "e.g. Jett"
+                : game === "league" ? "e.g. Yasuo"
+                : game === "overwatch" ? "e.g. Genji"
+                : "Enter a character name"}
               maxLength={100}
             />
           </div>
@@ -101,9 +108,10 @@ export default function ExcuseGenerator() {
               id="situation"
               name="situation"
               placeholder={
-                game === "valorant"
-                  ? "Flashed my team. Missed every shot. Blamed the ping."
-                  : "Went 0/9. Told everyone I was scaling."
+                game === "valorant" ? "Flashed my team. Missed every shot. Blamed the ping."
+                  : game === "league" ? "Went 0/9. Told everyone I was scaling."
+                  : game === "overwatch" ? "Got slept after popping blade."
+                  : "Describe what went wrong."
               }
               value={situation}
               onChange={(event) => setSituation(event.target.value)}

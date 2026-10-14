@@ -123,9 +123,10 @@ export default async function Home() {
                 <li key={item.id}>
                   <article className="joke-card" data-game={item.game}>
                     <span className="joke-number">
-                      {item.game === "valorant"
-                        ? "Valorant"
-                        : "League of Legends"}
+                      {item.game === "valorant" ? "Valorant"
+                        : item.game === "league" ? "League of Legends"
+                        : item.game === "overwatch" ? "Overwatch"
+                        : "Unknown Game"}
                       {item.character_name && ` · ${item.character_name}`}
                     </span>
 
