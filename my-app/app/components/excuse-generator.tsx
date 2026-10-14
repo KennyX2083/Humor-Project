@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { gameCharacters } from "../../lib/game-characters";
+import CharacterAutocomplete from "./character-autocomplete";
 
 export default function ExcuseGenerator() {
   const router = useRouter();
@@ -10,6 +12,7 @@ export default function ExcuseGenerator() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [characterReset, setCharacterReset] = useState(0);
 
   async function generate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,12 +42,13 @@ export default function ExcuseGenerator() {
       }
 
       form.reset();
+      setCharacterReset((count) => count + 1);
       setSituation("");
-      setMessage("Published. Your defense is in the feed.");
+      setMessage("Published! Head to Vote to see your excuse.");
       router.refresh();
     } catch (error) {
       setError(
-        error instanceof Error ? error.message : "Something went wrong."
+        error instanceof Error ? error.message : "Something went wrong.",
       );
     } finally {
       setPending(false);
@@ -68,7 +72,7 @@ export default function ExcuseGenerator() {
             {[
               { value: "valorant", label: "Valorant" },
               { value: "league", label: "League of Legends" },
-              { value: "overwatch", label: "Overwatch"},
+              { value: "overwatch", label: "Overwatch" },
             ].map((option) => (
               <label className="game-choice" key={option.value}>
                 <input
@@ -85,20 +89,27 @@ export default function ExcuseGenerator() {
 
           <div className="queue-field">
             <label htmlFor="character">
-              {game === "valorant" ? "Agent" 
-              : game === "league" ? "Champion" 
-              : game === "overwatch" ? "Hero" 
-              : "Character"}
+              {game === "valorant"
+                ? "Agent"
+                : game === "league"
+                  ? "Champion"
+                  : game === "overwatch"
+                    ? "Hero"
+                    : "Character"}
               <span>optional</span>
             </label>
-            <input
-              id="character"
-              name="character"
-              placeholder={game === "valorant" ? "e.g. Jett"
-                : game === "league" ? "e.g. Yasuo"
-                : game === "overwatch" ? "e.g. Genji"
-                : "Enter a character name"}
-              maxLength={100}
+            <CharacterAutocomplete
+              key={`${game}-${characterReset}`}
+              options={gameCharacters[game] ?? []}
+              placeholder={
+                game === "valorant"
+                  ? "e.g. Jett"
+                  : game === "league"
+                    ? "e.g. Yasuo"
+                    : game === "overwatch"
+                      ? "e.g. Mercy"
+                      : "Enter a character name"
+              }
             />
           </div>
 
@@ -108,10 +119,13 @@ export default function ExcuseGenerator() {
               id="situation"
               name="situation"
               placeholder={
-                game === "valorant" ? "Flashed my team. Missed every shot. Blamed the ping."
-                  : game === "league" ? "Went 0/9. Told everyone I was scaling."
-                  : game === "overwatch" ? "Got slept after popping blade."
-                  : "Describe what went wrong."
+                game === "valorant"
+                  ? "Flashed my team. Missed every shot. Blamed the ping."
+                  : game === "league"
+                    ? "Went 0/9. Told everyone I was scaling."
+                    : game === "overwatch"
+                      ? "Got slept after popping blade."
+                      : "Describe what went wrong."
               }
               value={situation}
               onChange={(event) => setSituation(event.target.value)}
@@ -135,15 +149,15 @@ export default function ExcuseGenerator() {
           </div>
         </fieldset>
 
-        <div
-          className="generation-status"
-          role="status"
-          aria-live="polite"
-        >
+        <div className="generation-status" role="status" aria-live="polite">
           {pending ? "Reviewing the incident…" : message}
         </div>
 
-        {error && <p className="queue-error" role="alert">{error}</p>}
+        {error && (
+          <p className="queue-error" role="alert">
+            {error}
+          </p>
+        )}
       </form>
     </section>
   );

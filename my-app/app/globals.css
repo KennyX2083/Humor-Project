@@ -1296,3 +1296,37 @@ body {
   color: #ffb347;
   background: #ff990010;
 }
+
+.character-autocomplete {
+  position: relative;
+  min-width: 0;
+}
+
+.character-suggestions {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border: 1px solid var(--queue-accent);
+  background: #150c2b;
+  box-shadow: 0 8px 24px #00000080;
+}
+
+.character-suggestions li {
+  padding: 10px 12px;
+  color: var(--foreground);
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.character-suggestions li:hover,
+.character-suggestions li[aria-selected="true"] {
+  background: #00ffff15;
+  color: var(--queue-accent);
+}
