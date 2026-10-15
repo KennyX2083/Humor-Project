@@ -23,9 +23,6 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(ellipse at top left, #29203d 0, transparent 55%),
-    var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, sans-serif;
   line-height: 1.6;
@@ -359,7 +356,6 @@ input {
   background: transparent;
   min-height: 100vh;
   padding-inline: 24px;
-  width: min(1080px, 100%);
 }
 
 .queue-page .site-header {
@@ -369,23 +365,16 @@ input {
 
 .queue-page .brand {
   font-size: 17px;
-  letter-spacing: -0.5px;
 }
 
 .queue-page .brand-mark {
   width: 32px;
   height: 32px;
-  border-radius: 3px;
-  background: var(--queue-accent);
-  color: #090014;
 }
 
 .queue-page .header-actions a,
 .queue-page .header-actions button {
-  border-radius: 4px;
   background: transparent;
-  color: var(--foreground);
-  border-color: var(--queue-line);
 }
 
 .queue-page .header-actions a:hover,
@@ -395,50 +384,33 @@ input {
 
 .queue-page .hero {
   max-width: none;
-  padding: 40px 0 28px;
 }
 
 .queue-page .eyebrow,
 .section-code,
 .report-label,
-.queue-page .joke-number,
-.ai-label {
+.queue-page .joke-number {
   font-family: var(--font-geist-mono), monospace;
 }
 
 .queue-page .eyebrow {
   margin: 0 0 18px;
-  color: var(--queue-muted);
-  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 1px;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
 
 .queue-page .hero h1 {
   margin: 0;
-  font-size: clamp(30px, 5vw, 48px);
-  font-weight: 750;
-  letter-spacing: -1.8px;
-  line-height: 1.15;
-}
-
-.queue-page .hero h1 span {
-  color: var(--queue-accent);
 }
 
 .queue-page .hero-description {
-  max-width: none;
   margin-top: 12px;
   color: var(--queue-muted);
   font-size: 15px;
 }
 
 .queue-generator {
-  padding: 24px;
-  background: #1a103ce8;
-  border: 1px solid var(--queue-line);
   border-top: 3px solid var(--queue-accent);
   margin-bottom: 32px;
 }
@@ -453,13 +425,11 @@ input {
 
 .generator-heading h2 {
   margin: 0;
-  font-size: 21px;
   font-weight: 650;
 }
 
 .section-code {
   font-size: 10px;
-  color: var(--queue-muted);
 }
 
 .queue-fields {
@@ -501,8 +471,6 @@ input {
   display: block;
   padding: 10px 16px;
   border: 1px solid #715184;
-  border-radius: 3px;
-  font-size: 13px;
   transition: background 120ms, border-color 120ms;
 }
 
@@ -539,7 +507,6 @@ input {
 .queue-field textarea {
   width: 100%;
   border: 1px solid #715184;
-  border-radius: 3px;
   padding: 12px 14px;
   background: #090014;
   color: var(--foreground);
@@ -590,17 +557,8 @@ input {
   gap: 24px;
   min-height: 46px;
   padding: 12px 18px;
-  border: 1px solid var(--queue-accent);
-  border-radius: 3px;
-  background: var(--queue-accent);
-  color: #090014;
   font-weight: 700;
   font-size: 13px;
-  transition: background 120ms, transform 120ms;
-}
-
-.generate-button:hover:not(:disabled) {
-  background: #00ffff;
 }
 
 .generate-button:active:not(:disabled) {
@@ -647,8 +605,6 @@ input {
 
 .queue-page .joke-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -656,27 +612,16 @@ input {
 }
 
 .queue-page .joke-card {
-  height: 100%;
-  padding: 28px 4px;
-  border: 0;
   border-radius: 0;
-  background: transparent;
-  transition: border-color 160ms;
   border-bottom: 1px solid var(--queue-line);
 }
 
 .queue-page .joke-number {
-  color: #ffb5aa;
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
   display: inline-block;
   padding: 4px 8px;
   border: 1px solid #4e4440;
-}
-
-.queue-page .joke-card[data-game="league"] .joke-number {
-  color: #a9ccdf;
-  border-color: #3a4d57;
 }
 
 .incident-report {
@@ -686,7 +631,6 @@ input {
 }
 
 .report-label {
-  color: var(--queue-muted);
   text-transform: uppercase;
   font-size: 10px;
   letter-spacing: 1px;
@@ -702,30 +646,14 @@ input {
 
 .queue-page .joke-card h3 {
   margin: 0 0 12px;
-  font-size: clamp(18px, 2.5vw, 23px);
-  font-weight: 550;
   letter-spacing: -0.3px;
-  line-height: 1.5;
   overflow-wrap: anywhere;
   max-width: 800px;
 }
 
-.ai-label {
-  font-size: 10px;
-  color: var(--queue-muted);
-  margin: 0;
-}
-
-.queue-page .vote-controls {
-  margin-top: 20px;
-}
-
 .queue-page .vote-buttons button {
   padding: 10px 14px;
-  border: 1px solid #ffffff25;
-  border-radius: 3px;
   background: transparent;
-  color: var(--foreground);
   font: inherit;
   min-height: 44px;
   border-color: #a267ba;
@@ -735,12 +663,6 @@ input {
 
 .queue-page .vote-buttons button:hover:not(:disabled) {
   border-color: var(--queue-accent);
-}
-
-.queue-page .vote-buttons button[aria-pressed="true"] {
-  border-color: var(--queue-accent);
-  background: var(--queue-accent);
-  color: #090014;
 }
 
 .queue-page .vote-controls .profile-muted {
@@ -786,7 +708,6 @@ input {
   }
 }
 
-/* Profile heading retains its original eyebrow styling. */
 .profile-heading .eyebrow {
   margin: 0 0 18px;
   color: #bca3ff;
@@ -796,7 +717,6 @@ input {
   text-transform: uppercase;
 }
 
-/* Arcade presentation. All interactions remain in the existing components. */
 body {
   background: radial-gradient(ellipse at 80% 10%, #4a155d66, transparent 50%), #090014;
 }
@@ -1088,7 +1008,6 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .queue-page *,
   .queue-page *::before,
   .queue-page *::after {
@@ -1145,7 +1064,6 @@ body {
   text-underline-offset: 0.35em;
 }
 
-/* Profile page: match the arcade presentation. */
 .queue-page .profile-heading h1 {
   color: var(--queue-accent);
   text-transform: uppercase;
@@ -1261,12 +1179,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .queue-page .profile-panel button,
   .queue-page .profile-upload input[type="file"]::file-selector-button {
     transition: none;
   }
 }
+
 .game-filter {
   display: flex;
   flex-wrap: wrap;

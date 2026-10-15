@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "../lib/supabase/server";
 import SignOutButton from "./components/google-sign-out-button";
 import GoogleSignInButton from "./components/google-sign-in-button";
-import ExcuseGenerator from "./components/excuse-generator";
 import ExcuseVoteButtons from "./components/excuse-vote-buttons";
 import GameFilter from "./components/game-filter";
 
@@ -59,6 +58,29 @@ export default async function Home({
   }
 
   const { data: excuses, error } = await excusesQuery;
+  type VoteCounts = {
+    valid: number;
+    skillIssue: number;
+  };
+
+  const countsByExcuse = new Map<string, VoteCounts>();
+  let countsFailed = false;
+
+  if (excuses?.length) {
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "get_excuse_vote_counts",
+      { excuse_ids: excuses.map((item) => item.id) },
+    );
+
+    countsFailed = Boolean(countsError);
+
+    for (const row of counts ?? []) {
+      countsByExcuse.set(row.excuse_id, {
+        valid: Number(row.valid_count),
+        skillIssue: Number(row.skill_issue_count),
+      });
+    }
+  }
 
   // Load the signed-in user's votes for the displayed excuses.
   const votesByExcuse = new Map<string, number>();
@@ -123,7 +145,7 @@ export default async function Home({
           <div className="collection-heading">
             <h2 id="feed-heading">The review queue</h2>
           </div>
-          
+
           <GameFilter selectedGame={selectedGame} />
 
           {error ? (
@@ -159,7 +181,12 @@ export default async function Home({
 
                     <p className="report-label">Their defense</p>
                     <h3>{item.excuse}</h3>
-                    <p className="ai-label">AI-generated</p>
+
+                    {countsFailed && (
+                      <p className="profile-muted" role="status">
+                        Vote counts are unavailable. Refresh to try again.
+                      </p>
+                    )}
 
                     {/* Voting controls belong inside each excuse card. */}
                     {user ? (
@@ -171,12 +198,34 @@ export default async function Home({
                         <ExcuseVoteButtons
                           excuseId={item.id}
                           initialVote={votesByExcuse.get(item.id) ?? null}
+                          validCount={
+                            countsFailed
+                              ? null
+                              : (countsByExcuse.get(item.id)?.valid ?? 0)
+                          }
+                          skillIssueCount={
+                            countsFailed
+                              ? null
+                              : (countsByExcuse.get(item.id)?.skillIssue ?? 0)
+                          }
                         />
                       )
                     ) : (
-                      <p className="profile-muted">
-                        Sign in to vote on this excuse.
-                      </p>
+                      <div className="vote-controls">
+                        {!countsFailed && (
+                          <p className="profile-muted">
+                            Valid excuse ·{" "}
+                            {countsByExcuse.get(item.id)?.valid ?? 0}
+                            {" / "}
+                            Skill issue ·{" "}
+                            {countsByExcuse.get(item.id)?.skillIssue ?? 0}
+                          </p>
+                        )}
+
+                        <p className="profile-muted">
+                          Sign in to vote on this excuse.
+                        </p>
+                      </div>
                     )}
                   </article>
                 </li>

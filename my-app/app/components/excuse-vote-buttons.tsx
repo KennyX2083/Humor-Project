@@ -6,11 +6,15 @@ import { useRouter } from "next/navigation";
 type Props = {
   excuseId: string;
   initialVote: number | null;
+  validCount: number | null;
+  skillIssueCount: number | null;
 };
 
 export default function ExcuseVoteButtons({
   excuseId,
   initialVote,
+  validCount,
+  skillIssueCount,
 }: Props) {
   const router = useRouter();
   const [selected, setSelected] = useState(initialVote);
@@ -55,7 +59,7 @@ export default function ExcuseVoteButtons({
           disabled={pending}
           onClick={() => submitVote(1)}
         >
-          Valid excuse
+          Valid excuse · {validCount ?? "—"}
         </button>
 
         <button
@@ -64,7 +68,7 @@ export default function ExcuseVoteButtons({
           disabled={pending}
           onClick={() => submitVote(-1)}
         >
-          Skill issue
+          Skill issue · {skillIssueCount ?? "—"}
         </button>
       </div>
 
