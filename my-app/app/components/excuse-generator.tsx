@@ -20,6 +20,21 @@ export default function ExcuseGenerator() {
     const form = event.currentTarget;
     const fields = new FormData(form);
 
+    const character = String(fields.get("character") ?? "").trim();
+
+    const matchingCharacter = (gameCharacters[game] ?? []).find(
+      (name) => name.toLowerCase() === character.toLowerCase(),
+    );
+
+    if (character && !matchingCharacter) {
+      setError(
+        "Choose a character from the selected game's suggestions, " +
+          "or leave the character field blank.",
+      );
+      setMessage("");
+      return;
+    }
+
     setPending(true);
     setError("");
     setMessage("");
@@ -30,7 +45,7 @@ export default function ExcuseGenerator() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           game,
-          character: fields.get("character"),
+          character: matchingCharacter ?? "",
           situation,
         }),
       });

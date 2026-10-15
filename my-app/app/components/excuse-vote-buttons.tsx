@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 type Props = {
   excuseId: string;
@@ -16,10 +15,13 @@ export default function ExcuseVoteButtons({
   validCount,
   skillIssueCount,
 }: Props) {
-  const router = useRouter();
   const [selected, setSelected] = useState(initialVote);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const [counts, setCounts] = useState({
+    valid: validCount,
+    skillIssue: skillIssueCount,
+  });
 
   async function submitVote(vote: 1 | -1) {
     setPending(true);
@@ -38,12 +40,15 @@ export default function ExcuseVoteButtons({
         throw new Error(result.error || "Could not save your vote.");
       }
 
-      setSelected(result.vote);
-      setMessage("Vote saved.");
-      router.refresh();
+      setSelected(vote);
+      setCounts({
+        valid: result.validCount ?? null,
+        skillIssue: result.skillIssueCount ?? null,
+      });
+      setMessage(result.warning ?? "Vote saved.");
     } catch (error) {
       setMessage(
-        error instanceof Error ? error.message : "Could not save your vote."
+        error instanceof Error ? error.message : "Could not save your vote.",
       );
     } finally {
       setPending(false);
@@ -59,7 +64,7 @@ export default function ExcuseVoteButtons({
           disabled={pending}
           onClick={() => submitVote(1)}
         >
-          Valid excuse · {validCount ?? "—"}
+          Valid excuse · {counts.valid ?? "—"}
         </button>
 
         <button
@@ -68,7 +73,7 @@ export default function ExcuseVoteButtons({
           disabled={pending}
           onClick={() => submitVote(-1)}
         >
-          Skill issue · {skillIssueCount ?? "—"}
+          Skill issue · {counts.skillIssue ?? "—"}
         </button>
       </div>
 

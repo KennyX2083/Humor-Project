@@ -8,17 +8,43 @@ import GameFilter from "./components/game-filter";
 
 export const dynamic = "force-dynamic";
 
+type ExcuseFeedItem = {
+  id: string;
+  game: string;
+  character_name: string | null;
+  situation: string | null;
+  excuse: string;
+  created_at: string;
+  valid_count: number;
+  skill_issue_count: number;
+  total_count: number;
+};
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ game?: string }>;
+  searchParams: Promise<{
+    game?: string;
+    sort?: string;
+    page?: string;
+  }>;
 }) {
-  const { game } = await searchParams;
+  const { game, sort, page } = await searchParams;
 
   const selectedGame =
     game === "valorant" || game === "league" || game === "overwatch"
       ? game
       : "all";
+  const selectedSort = sort === "valid" || sort === "skill" ? sort : "newest";
+
+  const parsedPage = Number(page ?? "1");
+
+  const currentPage =
+    Number.isSafeInteger(parsedPage) &&
+    parsedPage > 0 &&
+    parsedPage <= 2147483647
+      ? parsedPage
+      : 1;
   const supabase = await createClient();
 
   const {
@@ -47,41 +73,54 @@ export default async function Home({
     }
   }
 
-  let excusesQuery = supabase
-    .from("excuses")
-    .select("id, game, character_name, situation, excuse, created_at")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const { data: feedData, error: feedError } = await supabase.rpc(
+    "get_excuse_feed",
+    {
+      p_game: selectedGame,
+      p_sort: selectedSort,
+      p_page: currentPage,
+    },
+  );
 
-  if (selectedGame !== "all") {
-    excusesQuery = excusesQuery.eq("game", selectedGame);
+  const invalidFeed = feedData !== null && !Array.isArray(feedData);
+
+  const error =
+    feedError || (invalidFeed ? new Error("Unexpected feed response.") : null);
+
+  const excuses: ExcuseFeedItem[] =
+    !error && Array.isArray(feedData) ? (feedData as ExcuseFeedItem[]) : [];
+  if (!error && excuses.length === 0 && currentPage > 1) {
+    const params = new URLSearchParams();
+
+    if (selectedGame !== "all") {
+      params.set("game", selectedGame);
+    }
+
+    if (selectedSort !== "newest") {
+      params.set("sort", selectedSort);
+    }
+
+    const query = params.toString();
+    redirect(query ? `/?${query}` : "/");
   }
 
-  const { data: excuses, error } = await excusesQuery;
+  const totalCount = Number(excuses?.[0]?.total_count ?? 0);
+  const totalPages = Math.max(1, Math.ceil(totalCount / 12));
+
   type VoteCounts = {
     valid: number;
     skillIssue: number;
   };
 
   const countsByExcuse = new Map<string, VoteCounts>();
-  let countsFailed = false;
+  const countsFailed = Boolean(error);
 
-  if (excuses?.length) {
-    const { data: counts, error: countsError } = await supabase.rpc(
-      "get_excuse_vote_counts",
-      { excuse_ids: excuses.map((item) => item.id) },
-    );
-
-    countsFailed = Boolean(countsError);
-
-    for (const row of counts ?? []) {
-      countsByExcuse.set(row.excuse_id, {
-        valid: Number(row.valid_count),
-        skillIssue: Number(row.skill_issue_count),
-      });
-    }
+  for (const item of excuses ?? []) {
+    countsByExcuse.set(item.id, {
+      valid: Number(item.valid_count),
+      skillIssue: Number(item.skill_issue_count),
+    });
   }
-
   // Load the signed-in user's votes for the displayed excuses.
   const votesByExcuse = new Map<string, number>();
   let votesFailed = false;
@@ -103,6 +142,18 @@ export default async function Home({
     }
   }
 
+  function pageHref(pageNumber: number) {
+    const params = new URLSearchParams();
+
+    if (selectedGame !== "all") params.set("game", selectedGame);
+    if (selectedSort !== "newest") params.set("sort", selectedSort);
+    if (pageNumber > 1) params.set("page", String(pageNumber));
+
+    const query = params.toString();
+    return query ? `/?${query}` : "/";
+  }
+
+  const feedVersion = crypto.randomUUID();
   return (
     <div className="site-shell queue-page">
       <header className="site-header">
@@ -146,7 +197,7 @@ export default async function Home({
             <h2 id="feed-heading">The review queue</h2>
           </div>
 
-          <GameFilter selectedGame={selectedGame} />
+          <GameFilter selectedGame={selectedGame} selectedSort={selectedSort} />
 
           {error ? (
             <p className="empty-state" role="alert">
@@ -196,6 +247,7 @@ export default async function Home({
                         </p>
                       ) : (
                         <ExcuseVoteButtons
+                          key={`${item.id}-${feedVersion}`}
                           excuseId={item.id}
                           initialVote={votesByExcuse.get(item.id) ?? null}
                           validCount={
@@ -231,6 +283,25 @@ export default async function Home({
                 </li>
               ))}
             </ul>
+          )}
+          {!error && excuses.length > 0 && (
+            <nav className="pagination" aria-label="Excuse pages">
+              {currentPage > 1 ? (
+                <Link href={pageHref(currentPage - 1)}>← Previous</Link>
+              ) : (
+                <span aria-disabled="true">← Previous</span>
+              )}
+
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              {currentPage < totalPages ? (
+                <Link href={pageHref(currentPage + 1)}>Next →</Link>
+              ) : (
+                <span aria-disabled="true">Next →</span>
+              )}
+            </nav>
           )}
         </section>
       </main>

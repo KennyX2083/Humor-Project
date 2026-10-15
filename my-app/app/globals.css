@@ -1198,7 +1198,8 @@ body {
   font-size: 13px;
 }
 
-.game-filter select {
+.game-filter select,
+.game-filter button {
   min-height: 44px;
   padding: 8px 12px;
   border: 1px solid var(--queue-accent);
@@ -1247,4 +1248,63 @@ body {
 .character-suggestions li[aria-selected="true"] {
   background: #00ffff15;
   color: var(--queue-accent);
+}
+
+.queue-page .pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin: 28px 0 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--queue-line);
+  font-family: inherit;
+}
+
+.queue-page .pagination a,
+.queue-page .pagination [aria-disabled="true"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--queue-accent);
+  background: #150c2b;
+  color: var(--queue-accent);
+  font-size: 12px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.queue-page .pagination a:hover {
+  background: #00ffff12;
+  box-shadow: 0 0 15px #00ffff25;
+}
+
+.queue-page .pagination [aria-disabled="true"] {
+  border-color: var(--queue-line);
+  color: var(--queue-muted);
+  opacity: 0.6;
+}
+
+.queue-page .pagination > span:not([aria-disabled]) {
+  color: var(--foreground);
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .queue-page .pagination {
+    gap: 8px;
+  }
+
+  .queue-page .pagination a,
+  .queue-page .pagination [aria-disabled="true"] {
+    min-width: 0;
+    padding: 8px 10px;
+  }
 }
