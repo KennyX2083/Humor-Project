@@ -90,6 +90,80 @@ GRANT EXECUTE ON FUNCTION public.get_excuse_feed(text, text, integer)
 GRANT EXECUTE ON FUNCTION public.get_excuse_vote_counts(uuid[])
   TO anon, authenticated, service_role;
 
+CREATE OR REPLACE FUNCTION public.get_scoped_excuse_feed(
+  p_game text DEFAULT 'all',
+  p_sort text DEFAULT 'newest',
+  p_page integer DEFAULT 1,
+  p_scope text DEFAULT 'all'
+)
+RETURNS TABLE (
+  id uuid,
+  game text,
+  character_name text,
+  situation text,
+  excuse text,
+  created_at timestamptz,
+  valid_count bigint,
+  skill_issue_count bigint,
+  total_count bigint
+)
+LANGUAGE sql
+
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  WITH counted AS (
+    SELECT
+      e.id,
+      e.game,
+      e.character_name,
+      e.situation,
+      e.excuse,
+      e.created_at,
+      count(v.excuse_id) FILTER (
+        WHERE v.vote = 1
+      ) AS valid_count,
+      count(v.excuse_id) FILTER (
+        WHERE v.vote = -1
+      ) AS skill_issue_count
+    FROM public.excuses AS e
+    LEFT JOIN public.excuse_votes AS v
+      ON v.excuse_id = e.id
+    WHERE
+      (p_game = 'all' OR e.game = p_game)
+      AND (
+        p_scope = 'all'
+        OR (
+          p_scope = 'mine'
+          AND (SELECT auth.uid()) IS NOT NULL
+          AND e.user_id = (SELECT auth.uid())
+        )
+      )
+    GROUP BY e.id
+  )
+  SELECT
+    c.*,
+    count(*) OVER () AS total_count
+  FROM counted AS c
+  ORDER BY
+    CASE WHEN p_sort = 'valid'
+      THEN c.valid_count END DESC NULLS LAST,
+    CASE WHEN p_sort = 'skill'
+      THEN c.skill_issue_count END DESC NULLS LAST,
+    c.created_at DESC,
+    c.id DESC
+  LIMIT 12
+  OFFSET (greatest(coalesce(p_page, 1), 1)::bigint - 1) * 12;
+$$;
+
+REVOKE ALL
+ON FUNCTION public.get_scoped_excuse_feed(text, text, integer, text)
+FROM PUBLIC;
+
+GRANT EXECUTE
+ON FUNCTION public.get_scoped_excuse_feed(text, text, integer, text)
+TO anon, authenticated, service_role;
+
 COMMIT;
 
 -- Optional read-only checks (run separately):

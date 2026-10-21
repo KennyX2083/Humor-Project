@@ -1308,3 +1308,9 @@ body {
     padding: 8px 10px;
   }
 }
+
+.preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}

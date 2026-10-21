@@ -27,9 +27,10 @@ export default async function Home({
     game?: string;
     sort?: string;
     page?: string;
+    scope?: string;
   }>;
 }) {
-  const { game, sort, page } = await searchParams;
+  const { game, sort, page, scope } = await searchParams;
 
   const selectedGame =
     game === "valorant" || game === "league" || game === "overwatch"
@@ -50,6 +51,8 @@ export default async function Home({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const selectedScope = user && scope === "mine" ? "mine" : "all";
 
   if (user) {
     const { data: profile, error } = await supabase
@@ -74,12 +77,13 @@ export default async function Home({
   }
 
   const { data: feedData, error: feedError } = await supabase.rpc(
-    "get_excuse_feed",
+    "get_scoped_excuse_feed",
     {
       p_game: selectedGame,
       p_sort: selectedSort,
       p_page: currentPage,
-    },
+      p_scope: selectedScope,
+    }
   );
 
   const invalidFeed = feedData !== null && !Array.isArray(feedData);
@@ -90,18 +94,7 @@ export default async function Home({
   const excuses: ExcuseFeedItem[] =
     !error && Array.isArray(feedData) ? (feedData as ExcuseFeedItem[]) : [];
   if (!error && excuses.length === 0 && currentPage > 1) {
-    const params = new URLSearchParams();
-
-    if (selectedGame !== "all") {
-      params.set("game", selectedGame);
-    }
-
-    if (selectedSort !== "newest") {
-      params.set("sort", selectedSort);
-    }
-
-    const query = params.toString();
-    redirect(query ? `/?${query}` : "/");
+    redirect(pageHref(1));
   }
 
   const totalCount = Number(excuses?.[0]?.total_count ?? 0);
@@ -147,6 +140,7 @@ export default async function Home({
 
     if (selectedGame !== "all") params.set("game", selectedGame);
     if (selectedSort !== "newest") params.set("sort", selectedSort);
+    if (selectedScope === "mine") params.set("scope", "mine");
     if (pageNumber > 1) params.set("page", String(pageNumber));
 
     const query = params.toString();
@@ -197,7 +191,12 @@ export default async function Home({
             <h2 id="feed-heading">The review queue</h2>
           </div>
 
-          <GameFilter selectedGame={selectedGame} selectedSort={selectedSort} />
+          <GameFilter 
+            selectedGame={selectedGame} 
+            selectedSort={selectedSort} 
+            selectedScope={selectedScope} 
+            canViewMine={Boolean(user)}
+          />
 
           {error ? (
             <p className="empty-state" role="alert">

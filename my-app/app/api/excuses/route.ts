@@ -74,7 +74,7 @@ export async function POST(request: Request) {
 
     character = matchingCharacter;
   }
-  
+
   const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
@@ -140,7 +140,7 @@ export async function POST(request: Request) {
   }
 
   const { data, error } = await supabase
-    .from("excuses")
+    .from("excuse_drafts")
     .insert({
       user_id: user.id,
       game,
@@ -153,13 +153,15 @@ export async function POST(request: Request) {
     .single();
 
   if (error) {
-    console.error("Could not save excuse:", error.message);
+    console.error("Could not save draft:", error.message);
 
     return Response.json(
-      { error: "The excuse was generated but could not be saved." },
+      {
+        error: "The excuse was generated but its preview could not be saved.",
+      },
       { status: 500 },
     );
   }
 
-  return Response.json({ excuse: data }, { status: 201 });
+  return Response.json({ draft: data }, { status: 201 });
 }

@@ -1,18 +1,26 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { gameCharacters } from "../../lib/game-characters";
 import CharacterAutocomplete from "./character-autocomplete";
 
+type ExcuseDraft = {
+  id: string;
+  game: "valorant" | "league" | "overwatch";
+  character_name: string | null;
+  situation: string;
+  excuse: string;
+  created_at: string;
+};
+
 export default function ExcuseGenerator() {
-  const router = useRouter();
   const [game, setGame] = useState("valorant");
   const [situation, setSituation] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [characterReset, setCharacterReset] = useState(0);
+  const [draft, setDraft] = useState<ExcuseDraft | null>(null);
 
   async function generate(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,11 +64,11 @@ export default function ExcuseGenerator() {
         throw new Error(result.error || "Could not generate an excuse.");
       }
 
+      setDraft(result.draft);
       form.reset();
       setCharacterReset((count) => count + 1);
       setSituation("");
-      setMessage("Published! Head to Vote to see your excuse.");
-      router.refresh();
+      setMessage("Preview ready. Your excuse has not been published.");
     } catch (error) {
       setError(
         error instanceof Error ? error.message : "Something went wrong.",
@@ -68,6 +76,210 @@ export default function ExcuseGenerator() {
     } finally {
       setPending(false);
     }
+  }
+
+  async function publishDraft() {
+    if (!draft || pending) return;
+
+    setPending(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/excuses/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draftId: draft.id }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Could not publish your excuse.");
+      }
+
+      if (typeof result.excuseId !== "string") {
+        throw new Error("Could not confirm publication. Please try again.");
+      }
+
+      setDraft(null);
+      setMessage("Published! Head to Vote or My Profile to see your excuse.");
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not publish your excuse.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function discardDraft() {
+    if (!draft || pending) return;
+
+    setPending(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/excuses/discard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ draftId: draft.id }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.discarded !== true) {
+        throw new Error(result.error || "Could not discard your draft.");
+      }
+
+      setDraft(null);
+      setMessage("Draft discarded. You can create a new excuse.");
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not discard your draft.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function regenerateDraft() {
+    if (!draft || pending) return;
+
+    const previousDraft = draft;
+
+    setPending(true);
+    setError("");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/excuses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          game: previousDraft.game,
+          character: previousDraft.character_name ?? "",
+          situation: previousDraft.situation,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Could not regenerate your excuse.");
+      }
+
+      if (!result.draft || typeof result.draft.id !== "string") {
+        throw new Error("No preview was returned. Please try again.");
+      }
+
+      setDraft(result.draft);
+      setMessage("New preview ready. Your excuse has not been published.");
+
+      // Remove the previous draft only after its replacement is saved.
+      if (result.draft.id !== previousDraft.id) {
+        try {
+          const cleanupResponse = await fetch("/api/excuses/discard", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ draftId: previousDraft.id }),
+          });
+
+          if (!cleanupResponse.ok) {
+            console.warn("Previous draft cleanup failed.");
+          }
+        } catch {
+          console.warn("Previous draft cleanup could not be completed.");
+        }
+      }
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Could not regenerate your excuse.",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (draft) {
+    return (
+      <section className="queue-generator" aria-labelledby="preview-heading">
+        <div className="generator-heading">
+          <h2 id="preview-heading">Preview your excuse</h2>
+          <span className="section-code">UNPUBLISHED</span>
+        </div>
+
+        <article className="joke-card" data-game={draft.game}>
+          <span className="joke-number">
+            {draft.game === "valorant"
+              ? "Valorant"
+              : draft.game === "league"
+                ? "League of Legends"
+                : "Overwatch"}
+            {draft.character_name && ` · ${draft.character_name}`}
+          </span>
+
+          <div className="incident-report">
+            <p className="report-label">Incident report</p>
+            <p>{draft.situation}</p>
+          </div>
+
+          <p className="report-label">Your defense</p>
+          <h3>{draft.excuse}</h3>
+        </article>
+
+        <div className="generator-bottom">
+          <p>Only you can see this preview until you publish it.</p>
+
+          <div className="preview-actions">
+            <button
+              className="generate-button"
+              type="button"
+              disabled={pending}
+              onClick={discardDraft}
+            >
+              Discard draft
+            </button>
+
+            <button
+              className="generate-button"
+              type="button"
+              disabled={pending}
+              onClick={regenerateDraft}
+            >
+              Regenerate
+            </button>
+
+            <button
+              className="generate-button"
+              type="button"
+              disabled={pending}
+              onClick={publishDraft}
+            >
+              Publish excuse
+              <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="generation-status" role="status" aria-live="polite">
+          {pending ? "Please wait..." : message}
+        </div>
+
+        {error && (
+          <p className="queue-error" role="alert">
+            {error}
+          </p>
+        )}
+      </section>
+    );
   }
 
   return (
@@ -156,7 +368,7 @@ export default function ExcuseGenerator() {
           </div>
 
           <div className="generator-bottom">
-            <p>AI-generated. Published for everyone to judge.</p>
+            <p>Preview excuse before publishing.</p>
             <button className="generate-button" type="submit">
               {pending ? "Building your defense…" : "Generate excuse"}
               <span aria-hidden="true">{pending ? "…" : "↗"}</span>
