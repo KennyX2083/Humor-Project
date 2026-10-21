@@ -52,9 +52,24 @@ async function saveProfile(formData: FormData) {
 export default async function ProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    page?: string;
+  }>;
 }) {
-  const { status } = await searchParams;
+  const { status, page } = await searchParams;
+
+  const parsedPage = Number(page ?? "1");
+
+  const currentPage =
+    Number.isSafeInteger(parsedPage) &&
+    parsedPage > 0 &&
+    parsedPage <= 2147483647
+      ? parsedPage
+      : 1;
+
+  const pageSize = 12;
+  const start = (currentPage - 1) * pageSize;
   const supabase = await createClient();
 
   const {
@@ -86,6 +101,56 @@ export default async function ProfilePage({
 
   const needsName = !profile.first_name?.trim() || !profile.last_name?.trim();
 
+  const {
+    data: myExcuses,
+    error: myExcusesError,
+    count: myExcusesCount,
+  } = await supabase
+    .from("excuses")
+    .select("id, game, character_name, situation, excuse, created_at", {
+      count: "exact",
+    })
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(start, start + pageSize - 1);
+  if (myExcusesError?.code === "PGRST103" && currentPage > 1) {
+    redirect("/profile#my-excuses-heading");
+  }
+
+  const totalPages = Math.max(1, Math.ceil((myExcusesCount ?? 0) / pageSize));
+  if (!myExcusesError && currentPage > totalPages) {
+    redirect("/profile#my-excuses-heading");
+  }
+
+  const myVoteCounts = new Map<string, { valid: number; skillIssue: number }>();
+
+  let myCountsFailed = false;
+
+  if (myExcuses?.length) {
+    const { data: counts, error: countsError } = await supabase.rpc(
+      "get_excuse_vote_counts",
+      { excuse_ids: myExcuses.map((item) => item.id) },
+    );
+
+    myCountsFailed = Boolean(countsError) || !Array.isArray(counts);
+
+    if (Array.isArray(counts)) {
+      for (const row of counts) {
+        myVoteCounts.set(row.excuse_id, {
+          valid: Number(row.valid_count),
+          skillIssue: Number(row.skill_issue_count),
+        });
+      }
+    }
+  }
+
+  function myExcusesPageHref(pageNumber: number) {
+    return pageNumber === 1
+      ? "/profile#my-excuses-heading"
+      : `/profile?page=${pageNumber}#my-excuses-heading`;
+  }
+
   return (
     <div className="site-shell queue-page">
       <header className="site-header">
@@ -102,7 +167,7 @@ export default async function ProfilePage({
           <Link href="/profile" aria-current="page">
             My Profile
           </Link>
-          <SignOutButton/>
+          <SignOutButton />
         </nav>
       </header>
 
@@ -210,6 +275,88 @@ export default async function ProfilePage({
             </form>
           </section>
         </div>
+
+        <section aria-labelledby="my-excuses-heading">
+          <div className="collection-heading">
+            <h2 id="my-excuses-heading">My excuses</h2>
+          </div>
+
+          {myExcusesError ? (
+            <p className="empty-state" role="alert">
+              Could not load your excuses. Please refresh and try again.
+            </p>
+          ) : !myExcuses?.length ? (
+            <p className="empty-state">
+              You haven’t published any excuses yet.{" "}
+              <Link href="/create">Create your first excuse.</Link>
+            </p>
+          ) : (
+            <ul className="joke-grid">
+              {myExcuses.map((item) => (
+                <li key={item.id}>
+                  <article className="joke-card" data-game={item.game}>
+                    <span className="joke-number">
+                      {item.game === "valorant"
+                        ? "Valorant"
+                        : item.game === "league"
+                          ? "League of Legends"
+                          : item.game === "overwatch"
+                            ? "Overwatch"
+                            : "Unknown game"}
+                      {item.character_name && ` · ${item.character_name}`}
+                    </span>
+
+                    {item.situation && (
+                      <div className="incident-report">
+                        <p className="report-label">Incident report</p>
+                        <p>{item.situation}</p>
+                      </div>
+                    )}
+
+                    <p className="report-label">Your defense</p>
+                    <h3>{item.excuse}</h3>
+                    <div className="vote-controls">
+                      {myCountsFailed ? (
+                        <p className="profile-muted" role="status">
+                          Vote counts are unavailable. Refresh to try again.
+                        </p>
+                      ) : (
+                        <p className="profile-muted">
+                          Valid excuse ·{" "}
+                          {myVoteCounts.get(item.id)?.valid ?? "—"}
+                          {" / "}
+                          Skill issue ·{" "}
+                          {myVoteCounts.get(item.id)?.skillIssue ?? "—"}
+                        </p>
+                      )}
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          )}
+          {!myExcusesError && Boolean(myExcuses?.length) && (
+            <nav className="pagination" aria-label="My excuses pages">
+              {currentPage > 1 ? (
+                <Link href={myExcusesPageHref(currentPage - 1)}>
+                  ← Previous
+                </Link>
+              ) : (
+                <span aria-disabled="true">← Previous</span>
+              )}
+
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+
+              {currentPage < totalPages ? (
+                <Link href={myExcusesPageHref(currentPage + 1)}>Next →</Link>
+              ) : (
+                <span aria-disabled="true">Next →</span>
+              )}
+            </nav>
+          )}
+        </section>
       </main>
     </div>
   );
